@@ -22,7 +22,14 @@ Similar to the above instructions, with the key difference being to clone the re
 ## Keybinds
 * `Home`: Resets the camera's position & rotation
 * `Tab`: Resets the model's position & rotation
-* `Space`: Randomizes model's position on the grid
+  
+<br/>
+
+* `1`: Select racket #1 (under the P)
+* `2`: Select racket #2 (under the I)
+* `3`: Select racket #3 (under the N)
+* `4`: Select racket #4 (under the H)
+* `5`: Snap the camera and focus on the center of the scene
 
 <br/>
 
