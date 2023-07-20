@@ -37,8 +37,9 @@ private:
 
     std::vector<VisualCube> net_cubes;
 
-    std::vector<VisualCube> racket_cubes;
+    std::vector<VisualCube> letter_cubes;
 
+    std::vector<VisualCube> racket_cubes;
     std::vector<Racket> rackets;
     std::vector<Racket> default_rackets;
 
@@ -49,10 +50,18 @@ public:
     Renderer(int _initialWidth, int _initialHeight);
 
     void Render(GLFWwindow* _window, double _deltaTime);
+
+    void DrawOneNet(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
+    void DrawOneRacket(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, int player);
+    void DrawOneP(glm::mat4 world_transform_matrix);
+
     void ResizeCallback(GLFWwindow* _window, int _displayWidth, int _displayHeight);
     void InputCallback(GLFWwindow* _window, double _deltaTime);
 
-    void DrawOneNet(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
-    void DrawOneRacket(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
+    void DrawOneI(glm::mat4 world_transform_matrix);
+
+    void DrawOneN(glm::mat4 world_transform_matrix);
+
+    void DrawOneH(glm::mat4 world_transform_matrix);
 };
 
