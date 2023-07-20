@@ -1,8 +1,6 @@
 # quad_tennis_love
 Quiz #1 - COMP 371
 
-**Note: the +Z-axis is the up direction (blue line), the +Y-axis is the right-ish direction (green line) & the +X-axis is the left-ish direction (red line)**
-
 ## Features
 * Many keybinds to control the camera and the model
 * Animated and fun-shaded tennis racket with ball

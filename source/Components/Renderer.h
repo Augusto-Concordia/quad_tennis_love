@@ -10,6 +10,12 @@
 
 class Renderer {
 private:
+    struct Racket {
+        glm::vec3 position;
+        glm::vec3 rotation;
+        glm::vec3 scale;
+    };
+
     std::shared_ptr<Camera> main_camera;
     std::shared_ptr<Shader> default_shader;
 
@@ -21,23 +27,12 @@ private:
 
     std::unique_ptr<VisualCube> world_cube;
 
+    std::vector<VisualCube> net_cubes;
+
     std::vector<VisualCube> racket_cubes;
 
-    glm::vec3 racket_one_position;
-    glm::vec3 racket_one_rotation;
-    glm::vec3 racket_one_scale;
-
-    glm::vec3 racket_two_position;
-    glm::vec3 racket_two_rotation;
-    glm::vec3 racket_two_scale;
-
-    glm::vec3 racket_three_position;
-    glm::vec3 racket_three_rotation;
-    glm::vec3 racket_three_scale;
-
-    glm::vec3 racket_four_position;
-    glm::vec3 racket_four_rotation;
-    glm::vec3 racket_four_scale;
+    std::vector<Racket> rackets;
+    std::vector<Racket> default_rackets;
 
     int racket_render_mode = GL_TRIANGLES;
     int selected_player = 0;
@@ -49,6 +44,7 @@ public:
     void ResizeCallback(GLFWwindow* _window, int _displayWidth, int _displayHeight);
     void InputCallback(GLFWwindow* _window, double _deltaTime);
 
+    void DrawOneNet(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
     void DrawOneRacket(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 };
 
