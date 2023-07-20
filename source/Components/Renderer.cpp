@@ -8,18 +8,18 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
 
     default_shader = Shader::Library::CreateShader("shaders/default.vert", "shaders/default.frag");
 
-    auto main_light_position = glm::vec3(0.0f, 13.0f, 0.0f);
-    auto main_light_color = glm::vec3(0.99f, 0.78f, 0.95f);
-
     //grid
-    Shader::Descriptor grid_s_descriptor = {.vertex_shader_path = "shaders/grid/grid.vert", .fragment_shader_path = "shaders/grid/grid.frag", .alpha = 0.4f};
-    main_grid = std::make_unique<VisualGrid>(78, 36, 1.0f, glm::vec3(0.0f), glm::vec3(90.0f, 0.0f, 0.0f),
-                                             grid_s_descriptor);
+    Shader::Descriptor grid_s_descriptor = {
+            .vertex_shader_path = "shaders/grid/grid.vert",
+            .fragment_shader_path = "shaders/grid/grid.frag",
+            .alpha = 0.4f
+    };
+    main_grid = std::make_unique<VisualGrid>(78, 36, 1.0f, glm::vec3(0.0f), glm::vec3(90.0f, 0.0f, 0.0f), grid_s_descriptor);
 
-    //axis lines
     const char *unlit_vertex_shader_path = "shaders/unlit/unlit.vert";
     const char *unlit_fragment_shader_path = "shaders/unlit/unlit.frag";
 
+    //axis lines
     Shader::Descriptor x_line_s_descriptor = {.vertex_shader_path = unlit_vertex_shader_path, .fragment_shader_path = unlit_fragment_shader_path, .line_thickness = 3.0f, .color = glm::vec3(
             1.0f, 0.0f, 0.0f)};
 
@@ -34,8 +34,26 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
     main_y_line = std::make_unique<VisualLine>(glm::vec3(0.01f), glm::vec3(0.01f, 5.01f, 0.01f), y_line_s_descriptor);
     main_z_line = std::make_unique<VisualLine>(glm::vec3(0.01f), glm::vec3(0.01f, 0.01f, 5.01f), z_line_s_descriptor);
 
-    Shader::Descriptor world_s_descriptor = {.vertex_shader_path = unlit_vertex_shader_path, .fragment_shader_path = unlit_fragment_shader_path, .color = glm::vec3(
-            0.53f, 0.81f, 0.92f)};
+    //light
+    //the way it currently is, isn't ideal, but it works for a quick demo
+    //eventually, it will become its own component
+    const auto light_position = glm::vec3(0.0f, 13.0f, 0.0f);
+    const auto light_color = glm::vec3(0.99f, 0.95f, 0.78f);
+
+    Shader::Descriptor sun_s_descriptor = {
+            .vertex_shader_path = unlit_vertex_shader_path,
+            .fragment_shader_path = unlit_fragment_shader_path,
+            .color = light_color,
+    };
+    VisualCube sun_cube = VisualCube(light_position, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f), sun_s_descriptor); //net post
+    main_light = std::make_unique<Light>(sun_cube, light_position, light_color);
+
+    //world cube
+    Shader::Descriptor world_s_descriptor = {
+            .vertex_shader_path = unlit_vertex_shader_path,
+            .fragment_shader_path = unlit_fragment_shader_path,
+            .color = glm::vec3(0.53f, 0.81f, 0.92f)
+    };
     world_cube = std::make_unique<VisualCube>(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(200.0f), glm::vec3(0.0f),
                                               world_s_descriptor);
 
@@ -51,22 +69,22 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
     Shader::Descriptor netpost_s_descriptor = {
             .vertex_shader_path = lit_vertex_shader_path,
             .fragment_shader_path = lit_fragment_shader_path,
-            .color = glm::vec3(0.18f, 0.12f, 0.14f),
-            .light_position = main_light_position,
-            .light_color = main_light_color,
-            .shininess = 8,
+            .color = glm::vec3(0.51f, 0.53f, 0.53f),
+            .light_position = main_light->position,
+            .light_color = main_light->color,
+            .shininess = 4,
     };
     net_cubes[0] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), net_transform_offset, netpost_s_descriptor); //net post
 
     Shader::Descriptor net_s_descriptor = {
             .vertex_shader_path = lit_vertex_shader_path,
             .fragment_shader_path = lit_fragment_shader_path,
-            .color = glm::vec3(0.78f, 0.88f, 0.94f),
-            .light_position = main_light_position,
-            .light_color = main_light_color,
+            .color = glm::vec3(0.96f, 0.96f, 0.96f),
+            .light_position = main_light->position,
+            .light_color = main_light->color,
             .shininess = 128,
     };
-    net_cubes[1] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), net_transform_offset, netpost_s_descriptor); //net
+    net_cubes[1] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), net_transform_offset, net_s_descriptor); //net
 
     //cube transform point offset (i.e. to scale it from the bottom-up)
     auto racket_transform_offset = glm::vec3(0.0f, 0.0f, 0.5f);
@@ -111,8 +129,8 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
             .line_thickness = racket_line_thickness,
             .point_size = racket_point_size,
             .color = glm::vec3(0.58f, 0.38f, 0.24f),
-            .light_position = main_light_position,
-            .light_color = main_light_color,
+            .light_position = main_light->position,
+            .light_color = main_light->color,
             .shininess = 2,
             };
     racket_cubes[0] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), racket_transform_offset, skin_s_descriptor); //skin
@@ -123,8 +141,8 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
             .line_thickness = racket_line_thickness,
             .point_size = racket_point_size,
             .color = glm::vec3(0.2f),
-            .light_position = main_light_position,
-            .light_color = main_light_color,
+            .light_position = main_light->position,
+            .light_color = main_light->color,
             .shininess = 64,
             };
     racket_cubes[1] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), racket_transform_offset, black_s_descriptor); //racket handle (black plastic)
@@ -135,8 +153,8 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
             .line_thickness = racket_line_thickness,
             .point_size = racket_point_size,
             .color = glm::vec3(0.1f, 0.2f, 0.9f),
-            .light_position = main_light_position,
-            .light_color = main_light_color,
+            .light_position = main_light->position,
+            .light_color = main_light->color,
             .shininess = 64,
             };
     racket_cubes[2] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), racket_transform_offset, blue_s_descriptor); //racket piece (blue plastic)
@@ -147,8 +165,8 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
             .line_thickness = racket_line_thickness,
             .point_size = racket_point_size,
             .color = glm::vec3(0.1f, 0.9f, 0.2f),
-            .light_position = main_light_position,
-            .light_color = main_light_color,
+            .light_position = main_light->position,
+            .light_color = main_light->color,
             .shininess = 64,
             };
     racket_cubes[3] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), racket_transform_offset, green_s_descriptor); //racket piece (green plastic)
@@ -160,8 +178,8 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
             .point_size = racket_point_size,
             .color = glm::vec3(0.94f),
             .alpha = 0.95f,
-            .light_position = main_light_position,
-            .light_color = main_light_color,
+            .light_position = main_light->position,
+            .light_color = main_light->color,
             .shininess = 64,
             };
     racket_cubes[4] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), racket_transform_offset, white_s_descriptor); //racket net (white plastic)
@@ -177,6 +195,9 @@ void Renderer::Render(GLFWwindow *_window, const double _deltaTime) {
     //activates the default shader
     default_shader->Use();
 
+    //draws the world cube
+    world_cube->Draw(main_camera->GetViewProjection(), main_camera->GetPosition());
+
     //draws the main grid
     main_grid->Draw(main_camera->GetViewProjection(), main_camera->GetPosition());
 
@@ -185,8 +206,8 @@ void Renderer::Render(GLFWwindow *_window, const double _deltaTime) {
     main_y_line->Draw(main_camera->GetViewProjection(), main_camera->GetPosition());
     main_z_line->Draw(main_camera->GetViewProjection(), main_camera->GetPosition());
 
-    //draws the world cube
-    world_cube->Draw(main_camera->GetViewProjection(), main_camera->GetPosition());
+    //draws the sun
+    main_light->cube.Draw(main_camera->GetViewProjection(), main_camera->GetPosition());
 
     //draws the net
     DrawOneNet(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
@@ -210,7 +231,7 @@ void Renderer::DrawOneNet(const glm::vec3 &position, const glm::vec3 &rotation, 
     scale_factor = glm::vec3(1.0f, 8.0f, 1.0f);
     world_transform_matrix = glm::translate(world_transform_matrix, glm::vec3(0.0f, 0.0f, -18.0f));
     world_transform_matrix = glm::scale(world_transform_matrix, scale_factor);
-    net_cubes[1].DrawFromMatrix(main_camera->GetViewProjection(), main_camera->GetPosition(), world_transform_matrix);
+    net_cubes[0].DrawFromMatrix(main_camera->GetViewProjection(), main_camera->GetPosition(), world_transform_matrix);
     world_transform_matrix = glm::scale(world_transform_matrix, 1.0f / scale_factor);
 
     //horizontal net
@@ -221,7 +242,7 @@ void Renderer::DrawOneNet(const glm::vec3 &position, const glm::vec3 &rotation, 
     for (int i = 0; i < h_net_count; ++i) {
         world_transform_matrix = glm::translate(world_transform_matrix, glm::vec3(0.0f, 0.0f, -1.0f));
         world_transform_matrix = glm::scale(world_transform_matrix, scale_factor);
-        net_cubes[0].DrawFromMatrix(main_camera->GetViewProjection(), main_camera->GetPosition(), world_transform_matrix);
+        net_cubes[1].DrawFromMatrix(main_camera->GetViewProjection(), main_camera->GetPosition(), world_transform_matrix);
         world_transform_matrix = glm::scale(world_transform_matrix, 1.0f / scale_factor);
     }
 
@@ -236,7 +257,7 @@ void Renderer::DrawOneNet(const glm::vec3 &position, const glm::vec3 &rotation, 
     for (int i = 0; i < v_net_count; ++i) {
         world_transform_matrix = glm::translate(world_transform_matrix, glm::vec3(0.0f, 0.0f, 1.0f));
         world_transform_matrix = glm::scale(world_transform_matrix, scale_factor);
-        net_cubes[0].DrawFromMatrix(main_camera->GetViewProjection(), main_camera->GetPosition(), world_transform_matrix);
+        net_cubes[1].DrawFromMatrix(main_camera->GetViewProjection(), main_camera->GetPosition(), world_transform_matrix);
         world_transform_matrix = glm::scale(world_transform_matrix, 1.0f / scale_factor);
     }
 
@@ -244,7 +265,7 @@ void Renderer::DrawOneNet(const glm::vec3 &position, const glm::vec3 &rotation, 
     scale_factor = glm::vec3(1.0f, 8.0f, 1.0f);
     world_transform_matrix = glm::translate(world_transform_matrix, glm::vec3(0.0f, -1.0f, 0.0f));
     world_transform_matrix = glm::scale(world_transform_matrix, scale_factor);
-    net_cubes[1].DrawFromMatrix(main_camera->GetViewProjection(), main_camera->GetPosition(), world_transform_matrix);
+    net_cubes[0].DrawFromMatrix(main_camera->GetViewProjection(), main_camera->GetPosition(), world_transform_matrix);
     world_transform_matrix = glm::scale(world_transform_matrix, 1.0f / scale_factor);
 }
 
@@ -477,16 +498,16 @@ void Renderer::InputCallback(GLFWwindow *_window, const double _deltaTime) {
         rackets[selected_player].rotation += glm::vec3(20.0f, 0.0f, 0.0f) * (float) _deltaTime;
     }
     if (Input::IsKeyPressed(_window, GLFW_KEY_W)) {
-        rackets[selected_player].rotation += glm::vec3(0.0f, 20.0f, 0.0f) * (float) _deltaTime;
-    }
-    if (Input::IsKeyPressed(_window, GLFW_KEY_S)) {
-        rackets[selected_player].rotation += glm::vec3(0.0f, -20.0f, 0.0f) * (float) _deltaTime;
-    }
-    if (Input::IsKeyPressed(_window, GLFW_KEY_A)) {
         rackets[selected_player].rotation += glm::vec3(0.0f, 0.0f, 20.0f) * (float) _deltaTime;
     }
-    if (Input::IsKeyPressed(_window, GLFW_KEY_D)) {
+    if (Input::IsKeyPressed(_window, GLFW_KEY_S)) {
         rackets[selected_player].rotation += glm::vec3(0.0f, 0.0f, -20.0f) * (float) _deltaTime;
+    }
+    if (Input::IsKeyPressed(_window, GLFW_KEY_A)) {
+        rackets[selected_player].rotation += glm::vec3(0.0f, 20.0f, 0.0f) * (float) _deltaTime;
+    }
+    if (Input::IsKeyPressed(_window, GLFW_KEY_D)) {
+        rackets[selected_player].rotation += glm::vec3(0.0f, -20.0f, 0.0f) * (float) _deltaTime;
     }
 
     //scale

@@ -16,6 +16,13 @@ private:
         glm::vec3 scale;
     };
 
+    struct Light {
+        VisualCube cube;
+
+        glm::vec3 position;
+        glm::vec3 color;
+    };
+
     std::shared_ptr<Camera> main_camera;
     std::shared_ptr<Shader> default_shader;
 
@@ -25,6 +32,7 @@ private:
     std::unique_ptr<VisualLine> main_y_line;
     std::unique_ptr<VisualLine> main_z_line;
 
+    std::unique_ptr<Light> main_light;
     std::unique_ptr<VisualCube> world_cube;
 
     std::vector<VisualCube> net_cubes;
