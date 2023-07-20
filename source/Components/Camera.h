@@ -60,6 +60,8 @@ public:
 
     void SetViewportSize(float _width, float _height);
     void SetDefaultPositionAndTarget();
+    void SetPosition(const glm::vec3& _position);
+    void SetTarget(const glm::vec3& _target);
 
     [[nodiscard]] glm::vec3 GetPosition() const;
     [[nodiscard]] glm::mat4 GetViewProjection() const;

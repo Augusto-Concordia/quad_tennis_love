@@ -153,6 +153,18 @@ void Camera::SetDefaultPositionAndTarget() {
     UpdateView();
 }
 
+void Camera::SetPosition(const glm::vec3 &_position) {
+    cam_position = _position;
+
+    UpdateView();
+}
+
+void Camera::SetTarget(const glm::vec3 &_target) {
+    cam_target = _target;
+
+    UpdateView();
+}
+
 glm::vec3 Camera::GetPosition() const {
     return cam_position;
 }

@@ -92,9 +92,10 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
     Shader::Descriptor p_s_descriptor = {
             .vertex_shader_path = lit_vertex_shader_path,
             .fragment_shader_path = lit_fragment_shader_path,
-            .color = glm::vec3(0.51f, 0.53f, 0.53f),
+            .color = glm::vec3(0.15f, 0.92f, 0.17f),
             .light_position = main_light->position,
             .light_color = main_light->color,
+            .ambient_strength = 0.2f,
             .shininess = 4,
     };
     letter_cubes[0] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), bottom_y_transform_offset, p_s_descriptor); //letter p
@@ -102,9 +103,10 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
     Shader::Descriptor i_s_descriptor = {
             .vertex_shader_path = lit_vertex_shader_path,
             .fragment_shader_path = lit_fragment_shader_path,
-            .color = glm::vec3(0.96f, 0.96f, 0.96f),
+            .color = glm::vec3(0.75f, 0.16f, 0.53f),
             .light_position = main_light->position,
             .light_color = main_light->color,
+            .ambient_strength = 0.2f,
             .shininess = 128,
     };
     letter_cubes[1] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), bottom_y_transform_offset, i_s_descriptor); //letter i
@@ -112,9 +114,10 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
     Shader::Descriptor n_s_descriptor = {
             .vertex_shader_path = lit_vertex_shader_path,
             .fragment_shader_path = lit_fragment_shader_path,
-            .color = glm::vec3(0.96f, 0.96f, 0.96f),
+            .color = glm::vec3(0.34f, 0.84f, 0.98f),
             .light_position = main_light->position,
             .light_color = main_light->color,
+            .ambient_strength = 0.2f,
             .shininess = 128,
     };
     letter_cubes[2] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), bottom_y_transform_offset, n_s_descriptor); //letter n
@@ -122,9 +125,10 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
     Shader::Descriptor h_s_descriptor = {
             .vertex_shader_path = lit_vertex_shader_path,
             .fragment_shader_path = lit_fragment_shader_path,
-            .color = glm::vec3(0.96f, 0.96f, 0.96f),
+            .color = glm::vec3(0.92f, 0.16f, 0.13f),
             .light_position = main_light->position,
             .light_color = main_light->color,
+            .ambient_strength = 0.2f,
             .shininess = 128,
     };
     letter_cubes[3] = VisualCube(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), bottom_y_transform_offset, h_s_descriptor); //letter h
@@ -139,7 +143,7 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
     //(everything else can be individually changed at any time)
     racket_cubes = std::vector<VisualCube>(5);
 
-    rackets = std::vector<Racket>(4);
+    rackets = std::vector<Racket>(5);
     default_rackets = std::vector<Racket>(4);
 
     rackets[0] = default_rackets[0] = {
@@ -320,19 +324,47 @@ void Renderer::DrawOneRacket(const glm::vec3 &position, const glm::vec3 &rotatio
     world_transform_matrix = Transforms::RotateDegrees(world_transform_matrix, rotation);
     world_transform_matrix = glm::scale(world_transform_matrix, scale);
 
+    glm::mat4 secondary_transform_matrix = world_transform_matrix;
+
     //player's letter
     switch (player) {
         case 0:
-            DrawOneP(world_transform_matrix);
+            DrawOneP(secondary_transform_matrix);
+            secondary_transform_matrix = glm::scale(secondary_transform_matrix, glm::vec3(0.9f));
+            secondary_transform_matrix = glm::translate(secondary_transform_matrix, glm::vec3(0.0f, 2.5f, -2.0f));
+            DrawOneP(secondary_transform_matrix);
+            secondary_transform_matrix = glm::scale(secondary_transform_matrix, glm::vec3(0.9f));
+            secondary_transform_matrix = glm::translate(secondary_transform_matrix, glm::vec3(0.0f, 2.5f, -2.0f));
+            DrawOneP(secondary_transform_matrix);
             break;
         case 1:
-            DrawOneN(Transforms::RotateDegrees(world_transform_matrix, glm::vec3(0.0f, 180.0f, 0.0f)));
+            secondary_transform_matrix = Transforms::RotateDegrees(world_transform_matrix, glm::vec3(0.0f, 180.0f, 0.0f));
+            DrawOneN(secondary_transform_matrix);
+            secondary_transform_matrix = glm::scale(secondary_transform_matrix, glm::vec3(0.9f));
+            secondary_transform_matrix = glm::translate(secondary_transform_matrix, glm::vec3(0.0f, 2.5f, 2.0f));
+            DrawOneN(secondary_transform_matrix);
+            secondary_transform_matrix = glm::scale(secondary_transform_matrix, glm::vec3(0.9f));
+            secondary_transform_matrix = glm::translate(secondary_transform_matrix, glm::vec3(0.0f, 2.5f, 2.0f));
+            DrawOneN(secondary_transform_matrix);
             break;
         case 2:
-            DrawOneI(world_transform_matrix);
+            DrawOneI(secondary_transform_matrix);
+            secondary_transform_matrix = glm::scale(secondary_transform_matrix, glm::vec3(0.9f));
+            secondary_transform_matrix = glm::translate(secondary_transform_matrix, glm::vec3(0.0f, 2.5f, -2.0f));
+            DrawOneI(secondary_transform_matrix);
+            secondary_transform_matrix = glm::scale(secondary_transform_matrix, glm::vec3(0.9f));
+            secondary_transform_matrix = glm::translate(secondary_transform_matrix, glm::vec3(0.0f, 2.5f, -2.0f));
+            DrawOneI(secondary_transform_matrix);
             break;
         case 3:
-            DrawOneH(Transforms::RotateDegrees(world_transform_matrix, glm::vec3(0.0f, 180.0f, 0.0f)));
+            secondary_transform_matrix = Transforms::RotateDegrees(world_transform_matrix, glm::vec3(0.0f, 180.0f, 0.0f));
+            DrawOneH(secondary_transform_matrix);
+            secondary_transform_matrix = glm::scale(secondary_transform_matrix, glm::vec3(0.9f));
+            secondary_transform_matrix = glm::translate(secondary_transform_matrix, glm::vec3(0.0f, 2.5f, 2.0f));
+            DrawOneH(secondary_transform_matrix);
+            secondary_transform_matrix = glm::scale(secondary_transform_matrix, glm::vec3(0.9f));
+            secondary_transform_matrix = glm::translate(secondary_transform_matrix, glm::vec3(0.0f, 2.5f, 2.0f));
+            DrawOneH(secondary_transform_matrix);
             break;
     }
 
@@ -620,6 +652,15 @@ void Renderer::InputCallback(GLFWwindow *_window, const double _deltaTime) {
         selected_player = 2;
     } else if (Input::IsKeyPressed(_window, GLFW_KEY_4)) {
         selected_player = 3;
+    } else if (Input::IsKeyPressed(_window, GLFW_KEY_5)) {
+        selected_player = 4;
+    }
+
+    const int* desired_keys = new int[5]{GLFW_KEY_1, GLFW_KEY_2, GLFW_KEY_3, GLFW_KEY_4, GLFW_KEY_5};
+    if (Input::IsAnyKeyPressed(_window, 5, desired_keys)) {
+        //sets focus on the selected player
+        main_camera->SetPosition(rackets[selected_player].position + glm::vec3(0.0f, 25.0f, 30.0f));
+        main_camera->SetTarget(rackets[selected_player].position);
     }
 
     //keyboard triggers
@@ -634,10 +675,7 @@ void Renderer::InputCallback(GLFWwindow *_window, const double _deltaTime) {
 
     //model transforms
     //translation
-    if (Input::IsKeyReleased(_window, GLFW_KEY_SPACE)) { //I know that std::rand isn't the best, but it'll do
-        rackets[selected_player].position = glm::vec3(-50.0f + std::rand() / (float) RAND_MAX * 100.0f,
-                                     -50.0f + std::rand() / (float) RAND_MAX * 100.0f, 0.0f);
-    } else if (Input::IsKeyReleased(_window, GLFW_KEY_TAB)) {
+    if (Input::IsKeyReleased(_window, GLFW_KEY_TAB)) {
         rackets[selected_player].position = default_rackets[selected_player].position;
         rackets[selected_player].rotation = default_rackets[selected_player].rotation;
         rackets[selected_player].scale = default_rackets[selected_player].scale;
