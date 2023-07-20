@@ -44,7 +44,7 @@ private:
     std::vector<Racket> default_rackets;
 
     int racket_render_mode = GL_TRIANGLES;
-    int selected_player = 0;
+    int selected_player = 4;
 
 public:
     Renderer(int _initialWidth, int _initialHeight);
