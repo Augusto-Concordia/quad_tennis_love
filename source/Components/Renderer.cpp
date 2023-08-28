@@ -158,7 +158,7 @@ Renderer::Renderer(int _initialWidth, int _initialHeight) {
     default_rackets = std::vector<Racket>(4);
 
     rackets[0] = default_rackets[0] = Racket(
-            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(-10.0f, 0.0f, -10.0f),
             glm::vec3(0.0f),
             glm::vec3(0.8f)
     );
