@@ -1,3 +1,5 @@
+![1693238824_quad_tennis_love](https://github.com/Augusto-Concordia/quad_tennis_love/assets/33916325/e311dbbc-77a2-42be-b4db-6eac1222cb22)
+
 # quad_tennis_love
 Quiz #1 - COMP 371
 
